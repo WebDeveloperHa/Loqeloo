@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import loqeloVideo from "@/assets/Loqelo final video compressed.mp4";
 import plantImg from "@/assets/plant.png";
+import videoPoster from "@/assets/video-thumb.jpg";
 import { IconClose, IconPlay } from "./icons";
 import { LogoMark } from "./Logo";
 
@@ -19,6 +20,18 @@ function FilmHoles() {
 
 export default function VideoSection() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [previewPlaying, setPreviewPlaying] = useState(false);
+  const previewRef = useRef<HTMLVideoElement>(null);
+
+  function playPreview() {
+    const video = previewRef.current;
+    if (!video) return;
+
+    void video.play().catch((error: unknown) => {
+      console.error("Unable to play the Loqelo video preview.", error);
+      setModalOpen(true);
+    });
+  }
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -46,22 +59,29 @@ export default function VideoSection() {
             <FilmHoles />
             <div className="relative flex-1">
               <video
+                ref={previewRef}
                 src={loqeloVideo}
+                poster={videoPoster}
                 aria-label="Loqelo launch video preview"
                 autoPlay
                 muted
                 loop
                 playsInline
+                preload="auto"
+                onPlay={() => setPreviewPlaying(true)}
+                onPause={() => setPreviewPlaying(false)}
                 className="aspect-video h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-ink/25" />
-              <button
-                onClick={() => setModalOpen(true)}
-                className="absolute inset-0 m-auto flex h-16 w-16 items-center justify-center rounded-full bg-card text-teal shadow-xl transition hover:scale-105"
-                aria-label="Play the Loqelo video"
-              >
-                <IconPlay className="ml-1 h-7 w-7" />
-              </button>
+              {!previewPlaying && (
+                <button
+                  onClick={playPreview}
+                  className="absolute inset-0 m-auto flex h-16 w-16 items-center justify-center rounded-full bg-card text-teal shadow-xl transition hover:scale-105"
+                  aria-label="Play the Loqelo video preview"
+                >
+                  <IconPlay className="ml-1 h-7 w-7" />
+                </button>
+              )}
               <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-ink/60 px-2.5 py-1 text-[11px] font-bold text-card">
                 <LogoMark className="h-3.5 w-3.5" /> Loqelo
               </span>
@@ -78,8 +98,8 @@ export default function VideoSection() {
             A better way to get things done
           </h2>
           <p className="mt-5 max-w-md text-lg text-muted-foreground">
-            Loqelo connects you with skilled, trusted service providers for
-            your home, garden and office. Watch how it works.
+            Loqelo connects you with skilled, trusted service providers for your home, garden and
+            office. Watch how it works.
           </p>
           <button
             onClick={() => setModalOpen(true)}
@@ -122,7 +142,10 @@ export default function VideoSection() {
                 src={loqeloVideo}
                 controls
                 autoPlay
+                muted
                 playsInline
+                preload="auto"
+                poster={videoPoster}
                 className="aspect-video w-full bg-ink object-contain"
               />
             </div>
